@@ -16,7 +16,7 @@ namespace lab_6
         /// </summary>
         List<DiskInfo> DI;
         /// <summary>
-        /// Данные дял комбобокса 
+        /// Данные длЯ комбобокса 
         /// </summary>
         Dictionary<string, string> comboSource;
         delegate void DelegateDiskBox();
@@ -63,14 +63,12 @@ namespace lab_6
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            if (DI.Count != 0)
+            if (DI.Count != 0 && OwnerBox.Text != "")
             {
-                string[] Properties = new string[9];
-                if (DI[DiskBox.SelectedIndex].CreateKey(Properties))
-                    MessageBox.Show("The key was created!", "Key Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (DI[DiskBox.SelectedIndex].CreateKey(OwnerBox.Text.Trim()))
+                    MessageBox.Show("Ключ к программе создан!", "Key Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 else
                     MessageBox.Show("The key was not created!", "Key Generator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
             }
         }
         /// <summary>

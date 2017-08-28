@@ -61,7 +61,7 @@ namespace Repository.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Provider=Microsoft.Jet.OLEDB.4.0;Data Source=db.mdb.
+        ///   Looks up a localized string similar to Provider=Microsoft.Jet.OLEDB.4.0;Data Source=db.mdb;Jet OLEDB:Database Password=f91640f1;.
         /// </summary>
         internal static string ConnectionString {
             get {

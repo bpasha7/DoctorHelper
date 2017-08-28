@@ -10,13 +10,13 @@ using System.Text;
 
 namespace DocumentTemplates.Templates
 {
-    public class TDS2 : IDocumentTemplate
+    public class TDS1 : IDocumentTemplate
     {
         private Microsoft.Office.Interop.Word.Application _wordDocument;
         private Microsoft.Office.Interop.Word.Document _document;
         private object _missing;
         private Client _client;
-        public TDS2(DataTDS2 Data, Client NewClient, BackgroundWorker bw)
+        public TDS1(DataTDS1 Data, Client NewClient, BackgroundWorker bw)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace DocumentTemplates.Templates
                     //headerRange.Font.ColorIndexBi = 
                     headerRange.Font.Size = 14;
                     headerRange.Text = "КГБУЗ «КМКБ №20 им. И. С. Берзона»\n" +
-                        "Дуплексное сканирование с ЦДК аорты и висцеральных ветвей";
+                        "Дуплексное сканирование с ЦДК аорты и Аолчечных артерий";
                 }
 
                 _document.Content.SetRange(1, 1);
@@ -139,29 +139,31 @@ namespace DocumentTemplates.Templates
                 titleTable.Range.Font.Name = "Times New Roman";
                 titleTable.Range.Font.Bold = 1;
                 // titleTable.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter; ;
-                titleTable.Range.Text = "\t\tКоличественные характеристики кровотока в висцеральных аретриях";
+                titleTable.Range.Text = "\t\tКоличественные характеристики кровотока в почечных аретриях";
 
                 titleTable.Range.InsertParagraphAfter();
                 titleTable.Range.InsertParagraphAfter();
-                int Table1NumRows = 5;
-                int Table1NumCols = 4;
+                int Table1NumRows = 7;
+                int Table1NumCols = 5;
                 Table Table1 = _document.Tables.Add(mainParagraph.Range, Table1NumRows, Table1NumCols, ref _missing, ref _missing);
 
                 Table1.Borders.Enable = 1;
                 Table1.Rows.Alignment = WdRowAlignment.wdAlignRowCenter;
 
+
+
                 for (int i = 0; i < Data.TableColumns.Count; i++)
                 {
-                    Table1.Cell(1, i + 1).Range.Text = Data.TableColumns[i];
+                    Table1.Cell(1, i + 2).Range.Text = Data.TableColumns[i];
                 }
 
                 for (int i = 0; i < Data.Table.Count; i++)
                 {
-                    Table1.Cell(i + 2, 1).Range.Text = Data.Table[i].Name;
+                    Table1.Cell(i + 2, 2).Range.Text = Data.Table[i].Name;
                     var criterias = Data.Table[i].GetVluesList();
-                    for (int j = 0; j < Table1NumCols - 1; j++)
+                    for (int j = 0; j < Table1NumCols - 2; j++)
                     {
-                        Table1.Cell(i + 2, j + 2).Range.Text = criterias[j];
+                        Table1.Cell(i + 2, j + 3).Range.Text = criterias[j];
                     }
                 }
                 foreach (Row row in Table1.Rows)
@@ -184,13 +186,32 @@ namespace DocumentTemplates.Templates
                         }
                     }
                 }
+                var cellLeft1 = Table1.Cell(2, 1);
+                cellLeft1.Merge(Table1.Cell(3, 1));
+                cellLeft1.Merge(Table1.Cell(4, 1));
+                cellLeft1.Range.Text = "Правая ПА";
+                cellLeft1.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+
+                var cellLeft2 = Table1.Cell(5, 1);
+                cellLeft2.Merge(Table1.Cell(6, 1));
+                cellLeft2.Merge(Table1.Cell(7, 1));
+                cellLeft2.Range.Text = "Правая ПА";
+                cellLeft2.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
                 #endregion
                 mainParagraph.Range.InsertParagraphAfter();
                 bw.ReportProgress(60);
 
-                if (Data.Paragraphs[4] != "")
+                if (Data.Paragraphs[5] != "")
                 {
-                    par1.Range.Text = $"Заключение: {Data.Paragraphs[5]}";
+                    par1.Range.Text = $"{Data.Paragraphs[5]}";
+                    par1.Range.InsertParagraphAfter();
+                }
+
+
+                if (Data.Paragraphs[6] != "")
+                {
+                    par1.Range.InsertParagraphAfter();
+                    par1.Range.Text = $"Заключение: {Data.Paragraphs[6]}";
                     par1.Range.InsertParagraphAfter();
                 }
 

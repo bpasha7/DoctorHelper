@@ -16,10 +16,10 @@ namespace Security
 
         }
 
-        public bool Check()
+        public string Check()
         {
 
-            bool keyExist = false;
+            string keyExist = "";
             string diskName = string.Empty;
             //Получение списка накопителей подключенных через интерфейс USB
             foreach (System.Management.ManagementObject drive in
@@ -46,7 +46,7 @@ namespace Security
                         var root = Directory.GetCurrentDirectory().Substring(0,2);
                         DiskInfo MyUSB = new DiskInfo(root, drive["Model"].ToString().Trim(), 0, drive["PNPDeviceID"].ToString().Trim());
                         if (File.Exists(root + "\\Licence.key"))
-                            keyExist = MyUSB.CheckKey(root + "\\\\Licence.key") ? true : false;
+                            keyExist = MyUSB.CheckKey(root + "\\\\Licence.key");
                     }
                 }
             }

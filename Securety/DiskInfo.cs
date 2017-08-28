@@ -76,13 +76,13 @@ namespace Security
         /// </summary>
         /// <param name="Properties">Параметры</param>
         /// <returns></returns>
-        public bool CreateKey(string[] Properties)
+        public bool CreateKey(string Owner)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(_Letter + "\\Licence.key", FileMode.Create)))
             {
                 writer.Write(Base64Encode(Base64Encode(garbageAdditor(_SerialNumber))));
                 writer.Write(Base64Encode(Base64Encode(garbageAdditor(_Model))));
-                //writer.Write(Base64Encode(Base64Encode(garbageAdditor(_DiskSize.ToString()))));
+                writer.Write(Base64Encode(Base64Encode(garbageAdditor(Owner))));
                 return true;
             }
             return false;
@@ -92,7 +92,7 @@ namespace Security
         /// </summary>
         /// <param name="Path">Путь к ключу</param>
         /// <returns>Список параметров или информацию, почему ключ не действителен</returns>
-        public bool CheckKey(string Path)
+        public string CheckKey(string Path)
         {
             if (File.Exists(Path))
             {
@@ -102,9 +102,8 @@ namespace Security
                     {
                         //List<string> Params = new List<string>();
                         if (garbageCollector(Base64Decode(Base64Decode(reader.ReadString()))) == _SerialNumber &&
-                            garbageCollector(Base64Decode(Base64Decode(reader.ReadString()))) == _Model
-                            )
-                            return true;
+                            garbageCollector(Base64Decode(Base64Decode(reader.ReadString()))) == _Model)
+                            return garbageCollector(Base64Decode(Base64Decode(reader.ReadString())));
                     }
                 }
                 catch(Exception ex)
@@ -112,7 +111,7 @@ namespace Security
 
                 }
             }
-            return false;
+            return "";
         }
         public string Letter
         {

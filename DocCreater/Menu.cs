@@ -29,14 +29,15 @@ namespace DocCreater
 
         private void Menu_Shown(object sender, EventArgs e)
         {
-            //var uc = new UsbChecker();
-            //if (!uc.Check())
-            //{
-            //    this.Close();
-            //    return;
-            //}
+            var uc = new UsbChecker();
+            var owner = uc.Check();
+            if (owner == "")
+            {
+                this.Close();
+                return;
+            }
             prgSpinner.Value = 10;
-            _f = new Form1();
+            _f = new Form1(owner);
             prgSpinner.Value = 20;
             System.Threading.Thread.Sleep(500);
             NewDayDirectiry();

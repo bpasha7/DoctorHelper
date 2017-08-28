@@ -11,6 +11,6 @@ namespace Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public int Age { get; set; }
-        public int HistoryNumber { get; set; }
+        public string HistoryNumber { get; set; }
     }
 }

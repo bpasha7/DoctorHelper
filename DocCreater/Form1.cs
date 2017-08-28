@@ -41,6 +41,8 @@ namespace DocCreater
         /// </summary>
         private MetroTextBox _enteredEditText;
 
+        private string _owner = "";
+
         private List<Entities.TreeNode> _toAddNodes;
         private List<Entities.TreeNode> _toDeleteNodes;
         private List<Entities.TreeNode> _toEditNodes;
@@ -49,13 +51,16 @@ namespace DocCreater
 
         private int _selectedTab = 0;
 
-        public Form1()
+        public Form1(string Owner)
         {
             _db = new MyLocalRepository();
             _toAddNodes = new List<Entities.TreeNode>();
             _toDeleteNodes = new List<Entities.TreeNode>();
+            _toEditNodes = new List<Entities.TreeNode>();
             _examinations = _db.GetAllExamitations();
             InitializeComponent();
+            _owner = Owner;
+            врачToolStripMenuItem.Text += _owner;
         }
 
         private void ClearForm()
@@ -70,6 +75,8 @@ namespace DocCreater
             LoadTab(0);
             LoadTab(1);
             LoadTab(2);
+            _selectedPatient = null;
+
             // LoadTab2();
             //  LoadTab3();
         }
@@ -94,25 +101,33 @@ namespace DocCreater
             ListTreeNodes.Remove(rootNode);
         }
 
+        private void SaveNodesChanges()
+        {
+            if (_toAddNodes.Count != 0  || _toEditNodes.Count != 0 || _toDeleteNodes.Count != 0)
+            {
+                var res = MessageBox.Show("Внесены изменения, применить?", "Выберите действие", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (res == DialogResult.Cancel)
+                    return;
+                if (res == DialogResult.Yes)
+                {
+                    var saves = _db.SaveNodes(_toAddNodes);
+                    var edits = _db.UpdateNodes(_toEditNodes);
+                    var deletes = _db.DeleteNodes(_toDeleteNodes);
+                    MessageBox.Show($"Сохранено {saves} из {_toAddNodes.Count}, изменено {edits} из {_toEditNodes.Count}, удалено {deletes} из {_toDeleteNodes.Count}.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
         private void ShowTemplates(string FieldName)
         {
             try
             {
+                treeView1.SelectedNode = null;
                 if (TreeName.Text == FieldName)
                     return;
-                if (_toAddNodes.Count != 0 || _toDeleteNodes.Count != 0)
-                {
-                    var res = MessageBox.Show("Внесены изменения, применить?", "Выберите действие", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                    if (res == DialogResult.Cancel)
-                        return;
-                    if (res == DialogResult.Yes)
-                    {
-                        var saves = _db.SaveNodes(_toAddNodes);
-                        var deletes = _db.DeleteNodes(_toDeleteNodes);
-                        MessageBox.Show($"Сохранено {saves} из {_toAddNodes.Count}, удалено {deletes} из {_toDeleteNodes.Count}.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
+                SaveNodesChanges();
                 _toAddNodes.Clear();
+                _toEditNodes.Clear();
                 _toDeleteNodes.Clear();
                 treeView1.Nodes.Clear();
                 _enteredEditText.Style = MetroFramework.MetroColorStyle.Red;
@@ -213,6 +228,8 @@ namespace DocCreater
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            if (ClientTextBox.Text == "")
+                return;
             _canPreview = false;
             metroProgressBar1.Value = 0;
             ProgressPanel.BringToFront();
@@ -256,7 +273,7 @@ namespace DocCreater
                 {
                     Age = (int)((dateTimePicker1.Value - DateTime.Now).Duration().Days / 365.2425),
                     Name = ClientTextBox.Text,
-                    HistoryNumber = Convert.ToInt32(HistoryTextBox.Text)
+                    HistoryNumber = HistoryTextBox.Text
                 };
                 FileWorker.ReportProgress(5);
 
@@ -272,6 +289,21 @@ namespace DocCreater
                         _currentDocument = new TDS(tdsData, client, FileWorker);
                         break;
                     case 1:
+                        var tds1 = new DataTDS1(gridControl2.DataSource as List<Criteria>);
+                        FileWorker.ReportProgress(20);
+                        var paragraphs1 = new string[7];
+                        paragraphs1[0] = $"Диаметр на уровне висцеральных ветвей {metroTextBox14.Text.Trim()} мм, на уровне бифуркации {metroTextBox13.Text.Trim()} мм.";
+                        var wall1 = metroCheckBox2.Checked ? metroCheckBox2.Text + ", " : "";
+                        paragraphs1[1] = $"Стенка: {wall1}АБС ({GetCheckedValueFromPanel(metroPanel4)}).";
+                        paragraphs1[2] = $"Просвет: {GetCheckedValueFromPanel(metroPanel5)}.";
+                        paragraphs1[3] = $"Кровоток Vps {metroTextBox12.Text.Trim()} см/сек, магистральный {metroTextBox11.Text.Trim()} см/сек.";
+                        paragraphs1[4] = metroTextBox10.Text.Trim();
+                        paragraphs1[5] = $"RAR = {metroTextBox16.Text.Trim()}.";
+                        paragraphs1[6] = metroTextBox15.Text.Trim();
+                        tds1.Paragraphs = paragraphs1;
+                        _currentDocument = new TDS1(tds1, client, FileWorker);
+                        break;
+                    case 2:
                         var tds2 = new DataTDS2(gridControl1.DataSource as List<Criteria>);
                         FileWorker.ReportProgress(20);
                         var paragraphs2 = new string[6];
@@ -430,19 +462,19 @@ namespace DocCreater
             }
         }
         #endregion
-
+        /// <summary>
+        /// Добавление фарзы из дерева в используемый текст бокс
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void treeView1_DoubleClick(object sender, EventArgs e)
         {
-            //var node = treeView1.SelectedNode;
-
-            //var sb = new StringBuilder();
-            //while (node != null)
-            //{
-            //    sb.Insert(0, node.Text + " ");
-            //    node = node.Parent;
-            //}
-            _enteredEditText.Text += treeView1.SelectedNode.Text;//sb.ToString();
-            _enteredEditText.Style = MetroFramework.MetroColorStyle.Blue;
+            try
+            {
+                _enteredEditText.Text += treeView1.SelectedNode.Text + " ";//sb.ToString();
+                _enteredEditText.Style = MetroFramework.MetroColorStyle.Blue;
+            }
+            catch (Exception ex) { }
         }
 
         private void metroTextBox10_Enter(object sender, EventArgs e)
@@ -516,7 +548,15 @@ namespace DocCreater
         {
             try
             {
-                var ids = treeView1.SelectedNode.Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] ids;
+
+                if (treeView1.SelectedNode == null)
+                {
+                    ids = treeView1.Nodes[0].Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    ids[0] = "0";
+                }
+                else
+                    ids = treeView1.SelectedNode.Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                 var newNode = new Entities.TreeNode
                 {
@@ -525,11 +565,14 @@ namespace DocCreater
                     epId = Convert.ToInt32(ids[1])
                 };
                 _toAddNodes.Add(newNode);
-                treeView1.SelectedNode.Nodes.Add(_enteredEditText.Text);
+                if (newNode.pId == 0)
+                    treeView1.Nodes.Add(_enteredEditText.Text);
+                else
+                    treeView1.SelectedNode.Nodes.Add(_enteredEditText.Text);
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show("Нельзя добавить к несохраненному объекту новый шаблон! Сохраните и продолжите.", "Добавление нового шаблона", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -550,7 +593,7 @@ namespace DocCreater
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show("Нельзя удалить несохраненный шаблон! Сохраните или отмените сохранение шаблонов.", "Удаление шаблона", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -645,8 +688,9 @@ namespace DocCreater
             for (int i = 0; i <= 10; i++)
             {
                 Opacity = i * 0.1;
-                System.Threading.Thread.Sleep(75);
+                System.Threading.Thread.Sleep(150 - i * 10);
             }
+            metroTabControl1.Show();
         }
 
         private void выходToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -681,6 +725,33 @@ namespace DocCreater
         {
             _enteredEditText = metroTextBox9;
             ShowTemplates("Заключение");
+        }
+
+        private void saveNodesButton_Click(object sender, EventArgs e)
+        {
+            SaveNodesChanges();
+        }
+
+        private void treeView1_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            var selectedNode = treeView1.SelectedNode;
+            if (selectedNode == null)
+                return;
+            try
+            {
+                var ids = selectedNode.Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                var editedNode = new Entities.TreeNode
+                {
+                    Name = e.Label,
+                    Id = Convert.ToInt32(ids[0])
+                };
+                _toEditNodes.Add(editedNode);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Нельзя изменить несохраненный шаблон!", "Изменение несохраненного шаблона", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
     }
 }

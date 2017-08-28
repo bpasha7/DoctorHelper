@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -40,7 +41,7 @@ namespace Repository
                 else
                     return 0;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return 0;
             }
@@ -65,6 +66,37 @@ namespace Repository
                 catch (Exception ex)
                 {
 
+                }
+                return count;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
+        public int UpdateNodes(List<TreeNode> Nodes)
+        {
+            try
+            {
+                int count = 0;
+                _connection?.Open();
+                foreach (var node in Nodes)
+                {
+                    try
+                    {
+                        OleDbCommand myAccessCommand = new OleDbCommand($"update Trees set [Name] = '{node.Name}' where Id = {node.Id};", _connection);
+                        myAccessCommand.ExecuteNonQuery();
+                        count++;
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                 }
                 return count;
             }
@@ -205,6 +237,13 @@ namespace Repository
             }
             catch (Exception ex)
             {
+                string lines = ex.ToString();
+
+                // Write the string to a file.
+                System.IO.StreamWriter file = new System.IO.StreamWriter($@"{Directory.GetCurrentDirectory()}\err.txt");
+                file.WriteLine(lines);
+
+                file.Close();
                 return null;
             }
             finally

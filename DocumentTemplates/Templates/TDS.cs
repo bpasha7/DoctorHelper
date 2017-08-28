@@ -78,9 +78,9 @@ namespace DocumentTemplates.Templates
 
                 infotable.Cell(1, 1).Range.Text = $"Дата {DateTime.Now.ToShortDateString()}";
                 infotable.Cell(1, 2).Range.Text = $"Аппарат Новый аппарат";
-                infotable.Cell(2, 1).Range.Text = $"Ф.И.О. {NewClient.Name}\tВозраст {NewClient.Age}";
+                infotable.Cell(2, 1).Range.Text = $"Ф.И.О. {NewClient.Name}";
                 infotable.Cell(2, 2).Range.Text = $"Условия локации: Условия";
-                infotable.Cell(3, 1).Range.Text = $"№ истории болезни {NewClient.HistoryNumber}";
+                infotable.Cell(3, 1).Range.Text = $"№ истории болезни {NewClient.HistoryNumber}\tВозраст {NewClient.Age}";
                 infotable.Cell(3, 2).Range.Text = $"Врач: Безрук А. П.";
 
                 foreach (Row row in infotable.Rows)
@@ -292,10 +292,12 @@ namespace DocumentTemplates.Templates
                 Microsoft.Office.Interop.Word.Paragraph par1 = _document.Content.Paragraphs.Add(ref _missing);
                 par1.Range.Font.Size = 12;
                 par1.Range.Font.Name = "Times New Roman";
-
-                par1.Range.Text = $"Атеросклеротическая бляшка (АБС) {Data.P1}";
-                par1.Range.InsertParagraphAfter();
-                par1.Range.InsertParagraphAfter();
+                if (Data.P1.Length != 0)
+                {
+                    par1.Range.Text = $"Атеросклеротическая бляшка (АБС) {Data.P1}";
+                    par1.Range.InsertParagraphAfter();
+                    par1.Range.InsertParagraphAfter();
+                }
                 if (Data.P2.Length != 0)
                 {
                     par1.Range.Text = $"Дополнительные данные {Data.P2}";

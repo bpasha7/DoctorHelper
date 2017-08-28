@@ -52,6 +52,7 @@
     <Compile Include="Patient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TDS\DataTDS.cs" />
+    <Compile Include="TDS\DataTDS1.cs" />
     <Compile Include="TDS\DataTDS2.cs" />
     <Compile Include="Template.cs" />
     <Compile Include="TreeNode.cs" />

@@ -49,6 +49,7 @@
     <Compile Include="DocumentTemplate.cs" />
     <Compile Include="IDocumentTemplate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Templates\TDS1.cs" />
     <Compile Include="Templates\TDS.cs" />
     <Compile Include="Templates\TDS2.cs" />
   </ItemGroup>
