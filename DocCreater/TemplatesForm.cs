@@ -197,7 +197,7 @@ namespace DocCreater
                 if (listView1.SelectedItems[0].SubItems[1].Text == "")
                     return;
                 var selectedId = Convert.ToInt32(listView1.SelectedItems[0].SubItems[1].Text);
-                valueTextBox.Text = _currentTempaltes.Where(t => t.Id == selectedId).SingleOrDefault()?.Value;
+               // valueTextBox.Text = _currentTempaltes.Where(t => t.Id == selectedId).SingleOrDefault()?.Value;
             }
             catch (Exception ex)
             {

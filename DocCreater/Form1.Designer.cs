@@ -184,6 +184,7 @@
             this.просмотретьToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.найтиToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.очиститьToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.врачToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FileWorker = new System.ComponentModel.BackgroundWorker();
             this.ProgressPanel = new MetroFramework.Controls.MetroPanel();
             this.metroLabel8 = new MetroFramework.Controls.MetroLabel();
@@ -194,7 +195,7 @@
             this.metroLabel21 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel22 = new MetroFramework.Controls.MetroLabel();
             this.devicesBox = new MetroFramework.Controls.MetroComboBox();
-            this.metroComboBox1 = new MetroFramework.Controls.MetroComboBox();
+            this.locationsBox = new MetroFramework.Controls.MetroComboBox();
             this.mRadioButton = new MetroFramework.Controls.MetroRadioButton();
             this.wRadioButton = new MetroFramework.Controls.MetroRadioButton();
             this.metroLabel23 = new MetroFramework.Controls.MetroLabel();
@@ -204,7 +205,8 @@
             this.findPatientbutton = new System.Windows.Forms.Button();
             this.PatientBox = new MetroFramework.Controls.MetroComboBox();
             this.cancelSearchbutton = new System.Windows.Forms.Button();
-            this.врачToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exCountLbl = new System.Windows.Forms.LinkLabel();
+            this.exInfoLbl = new MetroFramework.Controls.MetroLabel();
             this.metroTabControl1.SuspendLayout();
             this.metroTabPage1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -240,7 +242,7 @@
             this.metroTabControl1.FontWeight = MetroFramework.MetroTabControlWeight.Regular;
             this.metroTabControl1.Location = new System.Drawing.Point(8, 174);
             this.metroTabControl1.Name = "metroTabControl1";
-            this.metroTabControl1.SelectedIndex = 1;
+            this.metroTabControl1.SelectedIndex = 0;
             this.metroTabControl1.ShowToolTips = true;
             this.metroTabControl1.Size = new System.Drawing.Size(742, 507);
             this.metroTabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
@@ -2370,12 +2372,12 @@
             // 
             // новыйToolStripMenuItem
             // 
-            this.новыйToolStripMenuItem.Enabled = false;
             this.новыйToolStripMenuItem.Image = global::DocCreater.Properties.Resources.new_file;
             this.новыйToolStripMenuItem.Name = "новыйToolStripMenuItem";
             this.новыйToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.новыйToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
             this.новыйToolStripMenuItem.Text = "Новое обследование";
+            this.новыйToolStripMenuItem.Click += new System.EventHandler(this.новыйToolStripMenuItem_Click);
             // 
             // сохранитьToolStripMenuItem1
             // 
@@ -2449,6 +2451,17 @@
             this.очиститьToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
             this.очиститьToolStripMenuItem1.Size = new System.Drawing.Size(190, 22);
             this.очиститьToolStripMenuItem1.Text = "Очистить";
+            this.очиститьToolStripMenuItem1.Click += new System.EventHandler(this.очиститьToolStripMenuItem1_Click);
+            // 
+            // врачToolStripMenuItem
+            // 
+            this.врачToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.врачToolStripMenuItem.Checked = true;
+            this.врачToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.врачToolStripMenuItem.Enabled = false;
+            this.врачToolStripMenuItem.Name = "врачToolStripMenuItem";
+            this.врачToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            this.врачToolStripMenuItem.Text = "Врач ";
             // 
             // FileWorker
             // 
@@ -2556,23 +2569,23 @@
             // 
             // devicesBox
             // 
-            this.devicesBox.FontSize = MetroFramework.MetroLinkSize.Small;
             this.devicesBox.FormattingEnabled = true;
-            this.devicesBox.ItemHeight = 19;
+            this.devicesBox.ItemHeight = 23;
             this.devicesBox.Location = new System.Drawing.Point(536, 130);
             this.devicesBox.Name = "devicesBox";
-            this.devicesBox.Size = new System.Drawing.Size(160, 25);
+            this.devicesBox.Size = new System.Drawing.Size(160, 29);
             this.devicesBox.TabIndex = 20;
+            this.devicesBox.SelectedIndexChanged += new System.EventHandler(this.devicesBox_SelectedIndexChanged);
             // 
-            // metroComboBox1
+            // locationsBox
             // 
-            this.metroComboBox1.FontSize = MetroFramework.MetroLinkSize.Small;
-            this.metroComboBox1.FormattingEnabled = true;
-            this.metroComboBox1.ItemHeight = 19;
-            this.metroComboBox1.Location = new System.Drawing.Point(838, 128);
-            this.metroComboBox1.Name = "metroComboBox1";
-            this.metroComboBox1.Size = new System.Drawing.Size(195, 25);
-            this.metroComboBox1.TabIndex = 21;
+            this.locationsBox.FormattingEnabled = true;
+            this.locationsBox.ItemHeight = 23;
+            this.locationsBox.Location = new System.Drawing.Point(838, 128);
+            this.locationsBox.Name = "locationsBox";
+            this.locationsBox.Size = new System.Drawing.Size(195, 29);
+            this.locationsBox.TabIndex = 21;
+            this.locationsBox.SelectedIndexChanged += new System.EventHandler(this.locationsBox_SelectedIndexChanged);
             // 
             // mRadioButton
             // 
@@ -2685,21 +2698,33 @@
             this.cancelSearchbutton.Visible = false;
             this.cancelSearchbutton.Click += new System.EventHandler(this.cancelSearchbutton_Click);
             // 
-            // врачToolStripMenuItem
+            // exCountLbl
             // 
-            this.врачToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.врачToolStripMenuItem.Checked = true;
-            this.врачToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.врачToolStripMenuItem.Enabled = false;
-            this.врачToolStripMenuItem.Name = "врачToolStripMenuItem";
-            this.врачToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
-            this.врачToolStripMenuItem.Text = "Врач ";
+            this.exCountLbl.AutoSize = true;
+            this.exCountLbl.Location = new System.Drawing.Point(987, 101);
+            this.exCountLbl.Name = "exCountLbl";
+            this.exCountLbl.Size = new System.Drawing.Size(13, 13);
+            this.exCountLbl.TabIndex = 34;
+            this.exCountLbl.TabStop = true;
+            this.exCountLbl.Text = "0";
+            // 
+            // exInfoLbl
+            // 
+            this.exInfoLbl.AutoSize = true;
+            this.exInfoLbl.FontWeight = MetroFramework.MetroLabelWeight.Regular;
+            this.exInfoLbl.Location = new System.Drawing.Point(876, 98);
+            this.exInfoLbl.Name = "exInfoLbl";
+            this.exInfoLbl.Size = new System.Drawing.Size(105, 19);
+            this.exInfoLbl.TabIndex = 33;
+            this.exInfoLbl.Text = "Обследований:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1051, 687);
+            this.Controls.Add(this.exCountLbl);
+            this.Controls.Add(this.exInfoLbl);
             this.Controls.Add(this.cancelSearchbutton);
             this.Controls.Add(this.PatientBox);
             this.Controls.Add(this.findPatientbutton);
@@ -2709,7 +2734,7 @@
             this.Controls.Add(this.metroLabel23);
             this.Controls.Add(this.wRadioButton);
             this.Controls.Add(this.mRadioButton);
-            this.Controls.Add(this.metroComboBox1);
+            this.Controls.Add(this.locationsBox);
             this.Controls.Add(this.devicesBox);
             this.Controls.Add(this.metroLabel22);
             this.Controls.Add(this.metroLabel21);
@@ -2728,7 +2753,6 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(1051, 687);
-            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(1051, 687);
             this.Name = "Form1";
             this.Opacity = 0D;
@@ -2894,7 +2918,7 @@
         private MetroFramework.Controls.MetroLabel metroLabel21;
         private MetroFramework.Controls.MetroLabel metroLabel22;
         private MetroFramework.Controls.MetroComboBox devicesBox;
-        private MetroFramework.Controls.MetroComboBox metroComboBox1;
+        private MetroFramework.Controls.MetroComboBox locationsBox;
         private MetroFramework.Controls.MetroRadioButton mRadioButton;
         private MetroFramework.Controls.MetroRadioButton wRadioButton;
         private MetroFramework.Controls.MetroLabel metroLabel23;
@@ -2957,6 +2981,8 @@
         private MetroFramework.Controls.MetroRadioButton metroRadioButton12;
         private MetroFramework.Controls.MetroCheckBox metroCheckBox2;
         private System.Windows.Forms.ToolStripMenuItem врачToolStripMenuItem;
+        private System.Windows.Forms.LinkLabel exCountLbl;
+        private MetroFramework.Controls.MetroLabel exInfoLbl;
     }
 }
 

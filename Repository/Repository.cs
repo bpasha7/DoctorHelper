@@ -172,6 +172,31 @@ namespace Repository
             }
         }
 
+        public int GetExaminationContPatient(int PatientId)
+        {
+            try
+            {
+                _connection?.Open();
+                OleDbCommand myAccessCommand = new OleDbCommand($"SELECT COUNT(Id) from Docs where PId = {PatientId};", _connection);
+                var reader = myAccessCommand.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    return Convert.ToInt32(reader.GetInt32(0));
+                }
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
+
         public int GetExaminationId(string Name)
         {
             try
@@ -189,6 +214,31 @@ namespace Repository
             catch (Exception ex)
             {
                 return -1;
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
+        public IEnumerable<Template> GetAllLocations()
+        {
+            try
+            {
+                _connection?.Open();
+                OleDbCommand myAccessCommand = new OleDbCommand($"select * from Locations;", _connection);
+                var reader = myAccessCommand.ExecuteReader();
+                var locations = new List<Template>();
+                if (reader.HasRows)
+                    while (reader.Read())
+                    {                       
+                        locations.Add(new Template(reader));
+                    }
+                return locations;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
             finally
             {

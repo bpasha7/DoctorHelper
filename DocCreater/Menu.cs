@@ -40,7 +40,7 @@ namespace DocCreater
             _f = new Form1(owner);
             prgSpinner.Value = 20;
             System.Threading.Thread.Sleep(500);
-            NewDayDirectiry();
+            NewDayDirectory();
             _f?.LoadTab(0);
             prgSpinner.Value = 40;
             prgSpinner.Style = MetroFramework.MetroColorStyle.Orange;
@@ -66,7 +66,7 @@ namespace DocCreater
             return false;
         }
 
-        private void NewDayDirectiry()
+        private void NewDayDirectory()
         {
             string path = $@"{Directory.GetCurrentDirectory()}\Data\{DateTime.Now.ToShortDateString()}"; ;
 

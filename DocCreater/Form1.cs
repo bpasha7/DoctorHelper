@@ -19,7 +19,7 @@ namespace DocCreater
         /// <summary>
         /// Текущий документ
         /// </summary>
-        private IDocumentTemplate _currentDocument;
+        private DocumentTemplate _currentDocument;
         /// <summary>
         /// 
         /// </summary>
@@ -43,6 +43,9 @@ namespace DocCreater
 
         private string _owner = "";
 
+        private string _device = "";
+        private string _location = "";
+
         private List<Entities.TreeNode> _toAddNodes;
         private List<Entities.TreeNode> _toDeleteNodes;
         private List<Entities.TreeNode> _toEditNodes;
@@ -58,12 +61,15 @@ namespace DocCreater
             _toDeleteNodes = new List<Entities.TreeNode>();
             _toEditNodes = new List<Entities.TreeNode>();
             _examinations = _db.GetAllExamitations();
+
+
+
             InitializeComponent();
             _owner = Owner;
             врачToolStripMenuItem.Text += _owner;
         }
 
-        private void ClearForm()
+        private void ClearForms()
         {
             PatientBox.Hide();
             ClientTextBox.Text = "";
@@ -76,9 +82,8 @@ namespace DocCreater
             LoadTab(1);
             LoadTab(2);
             _selectedPatient = null;
-
-            // LoadTab2();
-            //  LoadTab3();
+            exCountLbl.Hide();
+            exInfoLbl.Hide();
         }
 
         void AddNodes(TreeNodeCollection collection, Entities.TreeNode rootNode, List<Entities.TreeNode> ListTreeNodes)
@@ -114,6 +119,9 @@ namespace DocCreater
                     var edits = _db.UpdateNodes(_toEditNodes);
                     var deletes = _db.DeleteNodes(_toDeleteNodes);
                     MessageBox.Show($"Сохранено {saves} из {_toAddNodes.Count}, изменено {edits} из {_toEditNodes.Count}, удалено {deletes} из {_toDeleteNodes.Count}.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _toAddNodes.Clear();
+                    _toEditNodes.Clear();
+                    _toDeleteNodes.Clear();
                 }
             }
         }
@@ -126,9 +134,6 @@ namespace DocCreater
                 if (TreeName.Text == FieldName)
                     return;
                 SaveNodesChanges();
-                _toAddNodes.Clear();
-                _toEditNodes.Clear();
-                _toDeleteNodes.Clear();
                 treeView1.Nodes.Clear();
                 _enteredEditText.Style = MetroFramework.MetroColorStyle.Red;
                 TreeName.Text = FieldName;
@@ -175,6 +180,11 @@ namespace DocCreater
                     ds3.Add(new Criteria("Vps см/сек"));
                     ds3.Add(new Criteria("RI"));
                     gridTDS3.DataSource = ds3;
+
+                    metroTextBox1.Text = "";
+                    metroTextBox2.Text = "";
+                    metroTextBox3.Text = "";
+
                     break;
                 case 1:
                     var ds31 = new List<Criteria>();
@@ -186,6 +196,14 @@ namespace DocCreater
                     ds31.Add(new Criteria("ворота"));
                     ds31.Add(new Criteria("сегментарные ветви"));
                     gridControl2.DataSource = ds31;
+
+                    metroTextBox14.Text = "";
+                    metroTextBox12.Text = "";
+                    metroTextBox11.Text = "";
+                    metroTextBox10.Text = "";
+                    metroTextBox16.Text = "";
+                    metroTextBox15.Text = "";
+
                     break;
                 case 2:
                     var ds11 = new List<Criteria>();
@@ -194,18 +212,18 @@ namespace DocCreater
                     ds11.Add(new Criteria("Селезеночная артерия"));
                     ds11.Add(new Criteria("Верхняя брыжеечная артерия"));
                     gridControl1.DataSource = ds11;
+
+                    metroTextBox4.Text = "";
+                    metroTextBox5.Text = "";
+                    metroTextBox6.Text = "";
+                    metroTextBox7.Text = "";
+                    metroTextBox8.Text = "";
+                    metroTextBox9.Text = "";
+
                     break;
                 default:
                     break;
             }
-
-        }
-        public void LoadTab2()
-        {
-
-        }
-        public void LoadTab3()
-        {
 
         }
         #endregion
@@ -215,6 +233,12 @@ namespace DocCreater
             devicesBox.DataSource = new BindingSource(devices, null);
             devicesBox.DisplayMember = "Value";
             devicesBox.ValueMember = "Key";
+
+            var locations = _db.GetAllLocations().ToList();
+            locationsBox.DisplayMember = "Name";
+            locationsBox.ValueMember = "Id";
+            locationsBox.DataSource = locations;
+
 
         }
 
@@ -286,7 +310,7 @@ namespace DocCreater
                         tdsData.P1 = metroTextBox1.Text;
                         tdsData.P2 = metroTextBox2.Text;
                         tdsData.P3 = metroTextBox3.Text;
-                        _currentDocument = new TDS(tdsData, client, FileWorker);
+                        _currentDocument = new TDS(tdsData, client, FileWorker, _owner, _location, _device);
                         break;
                     case 1:
                         var tds1 = new DataTDS1(gridControl2.DataSource as List<Criteria>);
@@ -301,7 +325,7 @@ namespace DocCreater
                         paragraphs1[5] = $"RAR = {metroTextBox16.Text.Trim()}.";
                         paragraphs1[6] = metroTextBox15.Text.Trim();
                         tds1.Paragraphs = paragraphs1;
-                        _currentDocument = new TDS1(tds1, client, FileWorker);
+                        _currentDocument = new TDS1(tds1, client, FileWorker, _owner, _location, _device);
                         break;
                     case 2:
                         var tds2 = new DataTDS2(gridControl1.DataSource as List<Criteria>);
@@ -315,7 +339,7 @@ namespace DocCreater
                         paragraphs2[4] = metroTextBox8.Text.Trim();
                         paragraphs2[5] = metroTextBox9.Text.Trim();
                         tds2.Paragraphs = paragraphs2;
-                        _currentDocument = new TDS2(tds2, client, FileWorker);
+                        _currentDocument = new TDS2(tds2, client, FileWorker, _owner, _location, _device);
                         break;
                     default:
                         break;
@@ -533,7 +557,7 @@ namespace DocCreater
                     {
                         _selectedPatient = null;
                         MessageBox.Show("Документ распечатан и сохранен.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        ClearForm();
+                        //ClearForms();
                     }
                 }
                 else
@@ -580,16 +604,22 @@ namespace DocCreater
         {
             try
             {
-                var ids = treeView1.SelectedNode.Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var selected = treeView1.SelectedNode;
+                if(selected.Nodes.Count > 0)
+                {
+                    MessageBox.Show($"Шаблон имеет подшаблоны. Сначала необходимо удалить подшаблоны.", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                var ids = selected.Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 var node = new Entities.TreeNode
                 {
                     Id = Convert.ToInt32(ids[0]),
                     epId = Convert.ToInt32(ids[1])
                 };
-                if (MessageBox.Show($"Удалить <{ treeView1.SelectedNode.Text}>?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (MessageBox.Show($"Удалить <{ selected.Text}>?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     return;
                 _toDeleteNodes.Add(node);
-                treeView1.SelectedNode.Remove();
+                selected.Remove();
             }
             catch (Exception ex)
             {
@@ -663,11 +693,14 @@ namespace DocCreater
                 _selectedPatient = PatientBox.SelectedItem as Patient;
                 ClientTextBox.Text = _selectedPatient.FullName;
                 dateTimePicker1.Value = _selectedPatient.BDate;
-                //_patientId = _selectedPatient.Id;
                 if (_selectedPatient.Gender == "М")
                     mRadioButton.Checked = true;
                 else
                     wRadioButton.Checked = true;
+                var count = _db.GetExaminationContPatient(_selectedPatient.Id);
+                exCountLbl.Text = $"{count}";
+                exCountLbl.Visible = true;
+                exInfoLbl.Visible = true;
             }
             catch (Exception ex)
             {
@@ -700,7 +733,7 @@ namespace DocCreater
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var window = MessageBox.Show("Подтвердите закрытие", "Закрыть программу?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var window = MessageBox.Show("Закрыть программу?", "Подтвердите закрытие", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             e.Cancel = (window == DialogResult.No);
         }
@@ -730,12 +763,14 @@ namespace DocCreater
         private void saveNodesButton_Click(object sender, EventArgs e)
         {
             SaveNodesChanges();
+            TreeName.Text = "";
+            ShowTemplates(TreeName.Text);
         }
 
         private void treeView1_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             var selectedNode = treeView1.SelectedNode;
-            if (selectedNode == null)
+            if (selectedNode == null || e.Label == null)
                 return;
             try
             {
@@ -752,6 +787,33 @@ namespace DocCreater
             {
                 MessageBox.Show("Нельзя изменить несохраненный шаблон!", "Изменение несохраненного шаблона", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+        }
+
+        private void новыйToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(MessageBox.Show("Создать новое обследование? Данные пердыдущего очистятся.", "Подтвердите", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                ClearForms();
+        }
+
+        private void очиститьToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Очистить текущую форму?", "Подтвердите", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                var index = metroTabControl1.SelectedIndex;
+                LoadTab(index);
+            }
+
+
+        }
+
+        private void devicesBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _device = devicesBox.Text;
+        }
+
+        private void locationsBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _location = locationsBox.Text;
         }
     }
 }

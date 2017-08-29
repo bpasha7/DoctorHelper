@@ -14,16 +14,22 @@ namespace DocumentTemplates.Templates
     /// <summary>
     /// Транскраниальное дуплексное сканирование
     /// </summary>
-    public class TDS : DocumentTemplate, IDocumentTemplate, IDisposable
+    public class TDS : DocumentTemplate
     {
         private Microsoft.Office.Interop.Word.Application _wordDocument;
         private Microsoft.Office.Interop.Word.Document _document;
         private object _missing;
         private Client _client;
-        public TDS(DataTDS Data, Client NewClient, BackgroundWorker bw)
+
+
+        public TDS(DataTDS Data, Client NewClient, BackgroundWorker bw, string owner, string location, string device)
         {
+           
             try
             {
+                Owner = owner;
+                Location = location;
+                Device = device;
                 _client = NewClient;
                 #region start Word
                 //Create an instance for word app
@@ -77,11 +83,11 @@ namespace DocumentTemplates.Templates
                 infotable.Rows.Alignment = WdRowAlignment.wdAlignRowCenter;
 
                 infotable.Cell(1, 1).Range.Text = $"Дата {DateTime.Now.ToShortDateString()}";
-                infotable.Cell(1, 2).Range.Text = $"Аппарат Новый аппарат";
+                infotable.Cell(1, 2).Range.Text = $"Аппарат: {Device}";
                 infotable.Cell(2, 1).Range.Text = $"Ф.И.О. {NewClient.Name}";
-                infotable.Cell(2, 2).Range.Text = $"Условия локации: Условия";
-                infotable.Cell(3, 1).Range.Text = $"№ истории болезни {NewClient.HistoryNumber}\tВозраст {NewClient.Age}";
-                infotable.Cell(3, 2).Range.Text = $"Врач: Безрук А. П.";
+                infotable.Cell(2, 2).Range.Text = $"Условия локации: {Location}";
+                infotable.Cell(3, 1).Range.Text = NewClient.HistoryNumber.Trim().Length != 0 ? $"№ истории болезни {NewClient.HistoryNumber}\tВозраст {NewClient.Age}" : $"Возраст {NewClient.Age}";
+                infotable.Cell(3, 2).Range.Text = $"Врач: {Owner}";
 
                 foreach (Row row in infotable.Rows)
                 {
@@ -336,13 +342,13 @@ namespace DocumentTemplates.Templates
             //cellHeader.Width = 80f;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _wordDocument?.Quit(ref _missing, ref _missing, ref _missing);
             _wordDocument = null;
         }
 
-        public bool Print()
+        public override bool Print()
         {
 #if DEBUG
             return true;
@@ -359,7 +365,7 @@ namespace DocumentTemplates.Templates
             // throw new NotImplementedException();
         }
 
-        public bool SavePreview()
+        public override bool SavePreview()
         {
             try
             {
@@ -378,7 +384,7 @@ namespace DocumentTemplates.Templates
             }
         }
 
-        public string Save()
+        public override string Save()
         {
             try
             {

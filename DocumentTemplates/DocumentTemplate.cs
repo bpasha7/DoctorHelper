@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentTemplates
 {
-    public abstract class DocumentTemplate
+    public abstract class DocumentTemplate : IDocumentTemplate, IDisposable
     {
         /// <summary>
         /// Название документа
@@ -16,7 +16,7 @@ namespace DocumentTemplates
         /// <summary>
         /// Врач
         /// </summary>
-        protected string Owner { get; set; }
+        public string Owner { get; set; }
         /// <summary>
         /// Пациент
         /// </summary>
@@ -28,7 +28,31 @@ namespace DocumentTemplates
         /// <summary>
         /// Аппарат
         /// </summary>
-        protected string Device { get; set; }
+        public string Device { get; set; }
+        /// <summary>
+        /// Услвоия локации
+        /// </summary>
+        public string Location { get; set; }
 
+        public virtual bool Print()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual string Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool SavePreview()
+        {
+            return false;
+            //throw new NotImplementedException();
+        }
+
+        public virtual void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
